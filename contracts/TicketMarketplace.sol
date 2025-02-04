@@ -35,7 +35,6 @@ contract TicketMarketplace is ITicketMarketplace {
         uint128 maxTickets;
         uint256 pricePerTicket;
         uint256 pricePerTicketERC20;
-        uint128 ticketsSold;
         uint128 nextTicketToSell;
     }
 
@@ -52,11 +51,10 @@ contract TicketMarketplace is ITicketMarketplace {
 
         /// not sure where need to  mint the ERC20... 
 
-        uint128 ticketsSold = 0;
         uint128 nextTicketToSell = 0;
 
         //create the event struct
-        events[currentEventId] = Event(maxTickets, pricePerTicket, pricePerTicketERC20, ticketsSold, nextTicketToSell);
+        events[currentEventId] = Event(maxTickets, pricePerTicket, pricePerTicketERC20,nextTicketToSell);
 
 
         emit EventCreated(currentEventId, maxTickets, pricePerTicket, pricePerTicketERC20);
@@ -125,7 +123,7 @@ contract TicketMarketplace is ITicketMarketplace {
 
         //ensure there is enough tickets to buy 
 
-        if (events[eventId].ticketsSold + ticketCount > events[eventId].maxTickets)
+        if (events[eventId].nextTicketToSell + ticketCount > events[eventId].maxTickets)
         {
             revert("We don't have that many tickets left to sell!");
         }
@@ -141,10 +139,10 @@ contract TicketMarketplace is ITicketMarketplace {
         //payable(address(this)).transfer(events[eventId].pricePerTicket * ticketCount);
         payable(msg.sender).transfer(msg.value - events[eventId].pricePerTicket * ticketCount);
     
-    
+
         //}
 
-        events[eventId].ticketsSold += ticketCount;
+        events[eventId].nextTicketToSell += ticketCount;
 
         emit TicketsBought(eventId, ticketCount, "ETH");
     }
@@ -158,12 +156,12 @@ contract TicketMarketplace is ITicketMarketplace {
         //also...
         //"Not enough funds supplied to buy the specified number of tickets."
 
-        if (events[eventId].ticketsSold + ticketCount > events[eventId].maxTickets)
+        if (events[eventId].nextTicketToSell + ticketCount > events[eventId].maxTickets)
         {
             revert("We don't have that many tickets left to sell!");
         }
 
-        events[eventId].ticketsSold += ticketCount;
+        events[eventId].nextTicketToSell += ticketCount;
 
         
         emit TicketsBought(eventId, ticketCount, "ERC20");
