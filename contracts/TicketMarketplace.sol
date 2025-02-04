@@ -44,35 +44,18 @@ contract TicketMarketplace is ITicketMarketplace {
 
     function createEvent(uint128 maxTickets, uint256 pricePerTicket, uint256 pricePerTicketERC20) external {
 
-
+        //maybe sure only contract owner can create events
+        //otherwise: "Unauthorized access"
         if (msg.sender != owner){
             revert("Unauthorized access");
         }
-
-        //maybe sure only contract owner can create events
-
-        //otherwise: "Unauthorized access"
-
-        //some func that creates a new event and returns the num ...
-        
-        //uint128 eventID = new Event(maxTickets, pricePerTicket, pricePerTicketERC20);
-
-        //need to mint the tickets for the event
-
-        //I use will have to loop to create tickets up to max tickets
-        //for (uint128 i = 0; i < maxTickets; i++){
-            //where r these being stored tho... do i need to emit an event....
-         //   TicketNFT ticketNFT = new TicketNFT();
-            //according to write up I think....
-          //  uint256 nftId = (nextEventId << 128) + i;
-            //ticketNFT.mintFromMarketPlace(msg.sender, nftId);
-        //}
 
         /// not sure where need to  mint the ERC20... 
 
         uint128 ticketsSold = 0;
         uint128 nextTicketToSell = 0;
 
+        //create the event struct
         events[currentEventId] = Event(maxTickets, pricePerTicket, pricePerTicketERC20, ticketsSold, nextTicketToSell);
 
 
@@ -92,9 +75,7 @@ contract TicketMarketplace is ITicketMarketplace {
             revert("Unauthorized access");
         }
 
-        //this should actually be a require 
-        //require(newMaxTickets >= events[eventId].ticketsSold, "The new number of max tickets is too small!");
-
+        //ensure that the new max tickets is greater than the current max tickets
         if (newMaxTickets < events[eventId].maxTickets){
             revert("The new number of max tickets is too small!");
         }
@@ -108,9 +89,7 @@ contract TicketMarketplace is ITicketMarketplace {
         //update struct 
 
         //only owner can update the price
-
         //otherwise: "Unauthorized access"
-
         if (msg.sender != owner){
             revert("Unauthorized access");
         }
@@ -122,13 +101,12 @@ contract TicketMarketplace is ITicketMarketplace {
 
     function setPriceForTicketERC20(uint128 eventId, uint256 price) external{
 
+        //only owner can update the price
+        //otherwise: "Unauthorized access"
+
         if (msg.sender != owner){
             revert("Unauthorized access");
         }
-
-        //only owner can update the price
-        
-        //otherwise: "Unauthorized access"
 
         //update struct 
         events[eventId].pricePerTicketERC20 = price;
@@ -139,30 +117,32 @@ contract TicketMarketplace is ITicketMarketplace {
     function buyTickets(uint128 eventId, uint128 ticketCount) payable external{
 
 
-         // need to calc ticket price and use the assertion 
+        // need to calc ticket price and use the assertion 
         //assert(price * events[eventId].maxTickets < 2**256 - 1);
         //"Overflow happened while calculating the total price of tickets. Try buying smaller number of tickets."
 
         // "Not enough funds supplied to buy the specified number of tickets."
 
         //ensure there is enough tickets to buy 
-        //require(events[eventId].ticketsSold + ticketCount < events[eventId].maxTickets, "We don't have that many tickets left to sell!");
-        //add to number of tickets sold
 
         if (events[eventId].ticketsSold + ticketCount > events[eventId].maxTickets)
         {
             revert("We don't have that many tickets left to sell!");
         }
 
+        //msg.val is the amount of eth sent to the contract
         if (msg.value < events[eventId].pricePerTicket * ticketCount){
             revert("Not enough funds supplied to buy the specified number of tickets.");
         }
 
         //check for overflow 
-
-        if (msg.value >= events[eventId].pricePerTicket * ticketCount){
-            payable(msg.sender).transfer(msg.value - events[eventId].pricePerTicket * ticketCount);
-        }
+        
+        //not sure how to send to contract .... 
+        //payable(address(this)).transfer(events[eventId].pricePerTicket * ticketCount);
+        payable(msg.sender).transfer(msg.value - events[eventId].pricePerTicket * ticketCount);
+    
+    
+        //}
 
         events[eventId].ticketsSold += ticketCount;
 
@@ -178,10 +158,6 @@ contract TicketMarketplace is ITicketMarketplace {
         //also...
         //"Not enough funds supplied to buy the specified number of tickets."
 
-        //ensure there is enough tickets to buy 
-        //require(events[eventId].ticketsSold + ticketCount <= events[eventId].maxTickets, "We don't have that many tickets left to sell!");
-        //add to number of tickets sold
-
         if (events[eventId].ticketsSold + ticketCount > events[eventId].maxTickets)
         {
             revert("We don't have that many tickets left to sell!");
@@ -191,6 +167,8 @@ contract TicketMarketplace is ITicketMarketplace {
 
         
         emit TicketsBought(eventId, ticketCount, "ERC20");
+
+        //should now mint 
 
     }
 
