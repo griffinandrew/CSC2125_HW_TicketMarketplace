@@ -149,7 +149,7 @@ contract TicketMarketplace is ITicketMarketplace {
         //require(events[eventId].ticketsSold + ticketCount < events[eventId].maxTickets, "We don't have that many tickets left to sell!");
         //add to number of tickets sold
 
-        if (events[eventId].ticketsSold + ticketCount < events[eventId].maxTickets)
+        if (events[eventId].ticketsSold + ticketCount > events[eventId].maxTickets)
         {
             revert("We don't have that many tickets left to sell!");
         }
@@ -182,7 +182,7 @@ contract TicketMarketplace is ITicketMarketplace {
         //require(events[eventId].ticketsSold + ticketCount <= events[eventId].maxTickets, "We don't have that many tickets left to sell!");
         //add to number of tickets sold
 
-        if (events[eventId].ticketsSold + ticketCount < events[eventId].maxTickets)
+        if (events[eventId].ticketsSold + ticketCount > events[eventId].maxTickets)
         {
             revert("We don't have that many tickets left to sell!");
         }
