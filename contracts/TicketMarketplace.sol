@@ -8,15 +8,8 @@ import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {ITicketMarketplace} from "./interfaces/ITicketMarketplace.sol";
 import "hardhat/console.sol";
 
-
-//is this the only way to do it? 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-
 contract TicketMarketplace is ITicketMarketplace {
     // your code goes here (you can do it!)
-
-    //address owner; // idk need to kow address of owner ... and set it intially so can 
-    //verify that only the owner is touching it.... 
 
     address public nftContract;
     address public ERC20Address;
@@ -38,9 +31,6 @@ contract TicketMarketplace is ITicketMarketplace {
         uint128 nextTicketToSell;
     }
 
-    //will incurr high gas....
-    //uint128 public nextEventId = 0;
-
     function createEvent(uint128 maxTickets, uint256 pricePerTicket, uint256 pricePerTicketERC20) external {
 
         //maybe sure only contract owner can create events
@@ -49,13 +39,11 @@ contract TicketMarketplace is ITicketMarketplace {
             revert("Unauthorized access");
         }
 
-        /// not sure where need to  mint the ERC20... 
+        /// not sure where need to mint the ERC20... 
 
         uint128 nextTicketToSell = 0;
-
         //create the event struct
-        events[currentEventId] = Event(maxTickets, pricePerTicket, pricePerTicketERC20,nextTicketToSell);
-
+        events[currentEventId] = Event(maxTickets, pricePerTicket, pricePerTicketERC20, nextTicketToSell);
 
         emit EventCreated(currentEventId, maxTickets, pricePerTicket, pricePerTicketERC20);
 
@@ -65,8 +53,6 @@ contract TicketMarketplace is ITicketMarketplace {
 
     //think this needs to be ownabale too bc need to check if access is authorized
     function setMaxTicketsForEvent(uint128 eventId, uint128 newMaxTickets) external{
-        //need to make some max tickets variable.. for each event...
-
         //only owner can update the max tickets
         //otherwise: "Unauthorized access"
         if (msg.sender != owner){
@@ -83,9 +69,6 @@ contract TicketMarketplace is ITicketMarketplace {
     }
 
     function setPriceForTicketETH(uint128 eventId, uint256 price) external{
-
-        //update struct 
-
         //only owner can update the price
         //otherwise: "Unauthorized access"
         if (msg.sender != owner){
@@ -98,10 +81,8 @@ contract TicketMarketplace is ITicketMarketplace {
     }
 
     function setPriceForTicketERC20(uint128 eventId, uint256 price) external{
-
         //only owner can update the price
         //otherwise: "Unauthorized access"
-
         if (msg.sender != owner){
             revert("Unauthorized access");
         }
@@ -113,8 +94,6 @@ contract TicketMarketplace is ITicketMarketplace {
     }
 
     function buyTickets(uint128 eventId, uint128 ticketCount) payable external{
-
-
         // need to calc ticket price and use the assertion 
         //assert(price * events[eventId].maxTickets < 2**256 - 1);
         //"Overflow happened while calculating the total price of tickets. Try buying smaller number of tickets."
@@ -137,11 +116,9 @@ contract TicketMarketplace is ITicketMarketplace {
         
         //not sure how to send to contract .... 
         //payable(address(this)).transfer(events[eventId].pricePerTicket * ticketCount);
+        //still not apparrntly sending eth to the contract...
         payable(msg.sender).transfer(msg.value - events[eventId].pricePerTicket * ticketCount);
     
-
-        //}
-
         events[eventId].nextTicketToSell += ticketCount;
 
         emit TicketsBought(eventId, ticketCount, "ETH");
@@ -163,7 +140,6 @@ contract TicketMarketplace is ITicketMarketplace {
 
         events[eventId].nextTicketToSell += ticketCount;
 
-        
         emit TicketsBought(eventId, ticketCount, "ERC20");
 
         //should now mint 
@@ -171,16 +147,13 @@ contract TicketMarketplace is ITicketMarketplace {
     }
 
     function setERC20Address(address newERC20Address) external{
-
         //if not the owner 
         // give err: "Unauthorized access"
 
         if (msg.sender != owner){
             revert("Unauthorized access");
         }
-
         ERC20Address = newERC20Address;
-
         emit ERC20AddressUpdate(ERC20Address);
 
     }
