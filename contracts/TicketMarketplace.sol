@@ -20,6 +20,8 @@ contract TicketMarketplace is ITicketMarketplace {
         //nftContract = _nftContract;
         owner = msg.sender;
         ERC20Address = _erc20Address;
+        TicketNFT nft = new TicketNFT();
+        nftContract = address(nft);
     }
 
     mapping(uint128 => Event) public events; // eventId => Event struct
@@ -100,6 +102,16 @@ contract TicketMarketplace is ITicketMarketplace {
 
         // "Not enough funds supplied to buy the specified number of tickets."
 
+        //if (ticketCount * events[eventId].pricePerTicket < 2**256 - 1){
+        //    revert("Overflow happened while calculating the total price of tickets. Try buying smaller number of tickets.");
+        //}
+
+        uint256 totalCost;
+        totalCost = ticketCount * events[eventId].pricePerTicket;
+        if (totalCost / ticketCount != events[eventId].pricePerTicket) {
+            revert("Overflow happened while calculating the total price of tickets. Try buying a smaller number of tickets.");
+        }
+
         //ensure there is enough tickets to buy 
 
         if (events[eventId].nextTicketToSell + ticketCount > events[eventId].maxTickets)
@@ -121,6 +133,10 @@ contract TicketMarketplace is ITicketMarketplace {
     
         events[eventId].nextTicketToSell += ticketCount;
 
+        //need to calc the nft id to send to function
+
+        ITicketNFT(nftContract).mintFromMarketPlace(msg.sender, eventId);
+
         emit TicketsBought(eventId, ticketCount, "ETH");
     }
 
@@ -136,6 +152,10 @@ contract TicketMarketplace is ITicketMarketplace {
         if (events[eventId].nextTicketToSell + ticketCount > events[eventId].maxTickets)
         {
             revert("We don't have that many tickets left to sell!");
+        }
+
+        if (IERC20(ERC20Address).balanceOf(msg.sender) < events[eventId].pricePerTicketERC20 * ticketCount){
+            revert("Not enough funds supplied to buy the specified number of tickets.");
         }
 
         events[eventId].nextTicketToSell += ticketCount;
