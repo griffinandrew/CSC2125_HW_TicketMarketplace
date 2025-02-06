@@ -102,14 +102,11 @@ contract TicketMarketplace is ITicketMarketplace {
 
         // "Not enough funds supplied to buy the specified number of tickets."
 
-        //if (ticketCount * events[eventId].pricePerTicket < 2**256 - 1){
-        //    revert("Overflow happened while calculating the total price of tickets. Try buying smaller number of tickets.");
-        //}
-
-        uint256 totalCost;
-        totalCost = ticketCount * events[eventId].pricePerTicket;
-        if (totalCost / ticketCount != events[eventId].pricePerTicket) {
-            revert("Overflow happened while calculating the total price of tickets. Try buying a smaller number of tickets.");
+        //check for overflow
+        unchecked {
+            if (events[eventId].pricePerTicket * ticketCount / ticketCount != events[eventId].pricePerTicket){
+                revert("Overflow happened while calculating the total price of tickets. Try buying smaller number of tickets.");
+            }
         }
 
         //ensure there is enough tickets to buy 
@@ -123,31 +120,33 @@ contract TicketMarketplace is ITicketMarketplace {
         if (msg.value < events[eventId].pricePerTicket * ticketCount){
             revert("Not enough funds supplied to buy the specified number of tickets.");
         }
-
-        //check for overflow 
-        
-        //not sure how to send to contract .... 
-        //payable(address(this)).transfer(events[eventId].pricePerTicket * ticketCount);
-        //still not apparrntly sending eth to the contract...
-        payable(msg.sender).transfer(msg.value - events[eventId].pricePerTicket * ticketCount);
     
-        events[eventId].nextTicketToSell += ticketCount;
+        //events[eventId].nextTicketToSell += ticketCount;
 
         //need to calc the nft id to send to function
 
-        ITicketNFT(nftContract).mintFromMarketPlace(msg.sender, eventId);
+        //should be mints as many tickets as the user bought
+
+        for (uint128 i = 0; i < ticketCount; ++i){
+            uint256 nftId = eventId << 128 + events[eventId].nextTicketToSell;
+            ITicketNFT(nftContract).mintFromMarketPlace(msg.sender, nftId);
+            events[eventId].nextTicketToSell++;
+        }
+        //uint256 nftId = eventId << 128 + events[eventId].nextTicketToSell;
+
+        //ITicketNFT(nftContract).mintFromMarketPlace(msg.sender, nftId);
 
         emit TicketsBought(eventId, ticketCount, "ETH");
     }
 
     function buyTicketsERC20(uint128 eventId, uint128 ticketCount) external{
 
-
-         // need to calc ticket price and use the assertion  
-        //assert(price * events[eventId].maxTickets < 2**256 - 1);
-
-        //also...
-        //"Not enough funds supplied to buy the specified number of tickets."
+        //check for overflow
+        unchecked {
+            if (events[eventId].pricePerTicketERC20 * ticketCount / ticketCount != events[eventId].pricePerTicketERC20){
+                revert("Overflow happened while calculating the total price of tickets. Try buying smaller number of tickets.");
+            }
+        }
 
         if (events[eventId].nextTicketToSell + ticketCount > events[eventId].maxTickets)
         {
@@ -158,11 +157,24 @@ contract TicketMarketplace is ITicketMarketplace {
             revert("Not enough funds supplied to buy the specified number of tickets.");
         }
 
-        events[eventId].nextTicketToSell += ticketCount;
+        //events[eventId].nextTicketToSell += ticketCount;
+
+        //should now mint 
+        for (uint128 i = 0; i < ticketCount; ++i){
+            uint256 nftId = eventId << 128 + events[eventId].nextTicketToSell;
+            ITicketNFT(nftContract).mintFromMarketPlace(msg.sender, nftId);
+            events[eventId].nextTicketToSell++;
+        }
+
+        IERC20 token = IERC20(ERC20Address);
+
+        token.transferFrom(msg.sender, address(this), events[eventId].pricePerTicketERC20 * ticketCount);
+
+
+
 
         emit TicketsBought(eventId, ticketCount, "ERC20");
 
-        //should now mint 
 
     }
 

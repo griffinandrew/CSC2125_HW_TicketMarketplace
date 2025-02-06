@@ -19,6 +19,7 @@ contract TicketNFT is ERC1155, ITicketNFT {
     }
 
     function mintFromMarketPlace(address to, uint256 nftId) external {
+        //require(balanceOf(to, nftId) == 0, "NFT already exists");
         _mint(to, nftId, 1, "");
     }
 
