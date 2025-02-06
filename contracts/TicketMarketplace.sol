@@ -128,13 +128,17 @@ contract TicketMarketplace is ITicketMarketplace {
         //should be mints as many tickets as the user bought
 
         for (uint128 i = 0; i < ticketCount; ++i){
-            uint256 nftId = eventId << 128 + events[eventId].nextTicketToSell;
+            uint256 nftId = (eventId << 128) + events[eventId].nextTicketToSell;
             ITicketNFT(nftContract).mintFromMarketPlace(msg.sender, nftId);
             events[eventId].nextTicketToSell++;
+            console.log("nftId: ", nftId);
+            console.log("nextTicketToSell: ", events[eventId].nextTicketToSell);
+            console.log("eventId: ", eventId);
+            console.log("pricePerTicket: ", events[eventId].pricePerTicket);
+            console.log("user account ", msg.sender);
+            console.log("owner account: ", owner);
         }
-        //uint256 nftId = eventId << 128 + events[eventId].nextTicketToSell;
 
-        //ITicketNFT(nftContract).mintFromMarketPlace(msg.sender, nftId);
 
         emit TicketsBought(eventId, ticketCount, "ETH");
     }
@@ -157,24 +161,24 @@ contract TicketMarketplace is ITicketMarketplace {
             revert("Not enough funds supplied to buy the specified number of tickets.");
         }
 
-        //events[eventId].nextTicketToSell += ticketCount;
-
         //should now mint 
         for (uint128 i = 0; i < ticketCount; ++i){
-            uint256 nftId = eventId << 128 + events[eventId].nextTicketToSell;
+            uint256 nftId = (eventId << 128) + events[eventId].nextTicketToSell;
             ITicketNFT(nftContract).mintFromMarketPlace(msg.sender, nftId);
             events[eventId].nextTicketToSell++;
+            console.log("nftId: ", nftId);
+            console.log("nextTicketToSell: ", events[eventId].nextTicketToSell);
+            console.log("eventId: ", eventId);
+            console.log("pricePerTicketERC20: ", events[eventId].pricePerTicketERC20);
+            console.log("user account ", msg.sender);
+            console.log("owner account: ", owner);
         }
 
         IERC20 token = IERC20(ERC20Address);
 
         token.transferFrom(msg.sender, address(this), events[eventId].pricePerTicketERC20 * ticketCount);
 
-
-
-
         emit TicketsBought(eventId, ticketCount, "ERC20");
-
 
     }
 
