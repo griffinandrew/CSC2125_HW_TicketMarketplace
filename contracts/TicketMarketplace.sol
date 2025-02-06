@@ -128,7 +128,12 @@ contract TicketMarketplace is ITicketMarketplace {
         //should be mints as many tickets as the user bought
 
         for (uint128 i = 0; i < ticketCount; ++i){
-            uint256 nftId = (eventId << 128) + events[eventId].nextTicketToSell;
+
+            uint256 id = eventId;
+            uint256 next = events[eventId].nextTicketToSell;
+            uint256 nftId = (id << 128) + next;
+            console.log("nftId before mint: ", nftId);
+
             ITicketNFT(nftContract).mintFromMarketPlace(msg.sender, nftId);
             events[eventId].nextTicketToSell++;
             console.log("nftId: ", nftId);
@@ -163,7 +168,12 @@ contract TicketMarketplace is ITicketMarketplace {
 
         //should now mint 
         for (uint128 i = 0; i < ticketCount; ++i){
-            uint256 nftId = (eventId << 128) + events[eventId].nextTicketToSell;
+            uint256 id = eventId;
+            uint256 next = events[eventId].nextTicketToSell;
+            uint256 nftId = (id << 128) + next;
+            //console.log("eventId << 128:", eventId << 128);
+            console.log("nftId before mint: ", nftId);
+            
             ITicketNFT(nftContract).mintFromMarketPlace(msg.sender, nftId);
             events[eventId].nextTicketToSell++;
             console.log("nftId: ", nftId);
