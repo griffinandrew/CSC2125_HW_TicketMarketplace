@@ -132,18 +132,17 @@ contract TicketMarketplace is ITicketMarketplace {
             uint256 id = eventId;
             uint256 next = events[eventId].nextTicketToSell;
             uint256 nftId = (id << 128) + next;
-            console.log("nftId before mint: ", nftId);
+            //console.log("nftId before mint: ", nftId);
 
             ITicketNFT(nftContract).mintFromMarketPlace(msg.sender, nftId);
             events[eventId].nextTicketToSell++;
-            console.log("nftId: ", nftId);
-            console.log("nextTicketToSell: ", events[eventId].nextTicketToSell);
-            console.log("eventId: ", eventId);
-            console.log("pricePerTicket: ", events[eventId].pricePerTicket);
-            console.log("user account ", msg.sender);
-            console.log("owner account: ", owner);
+            //console.log("nftId: ", nftId);
+            //console.log("nextTicketToSell: ", events[eventId].nextTicketToSell);
+            //console.log("eventId: ", eventId);
+            //console.log("pricePerTicket: ", events[eventId].pricePerTicket);
+            //console.log("user account ", msg.sender);
+            //console.log("owner account: ", owner);
         }
-
 
         emit TicketsBought(eventId, ticketCount, "ETH");
     }
@@ -172,16 +171,16 @@ contract TicketMarketplace is ITicketMarketplace {
             uint256 next = events[eventId].nextTicketToSell;
             uint256 nftId = (id << 128) + next;
             //console.log("eventId << 128:", eventId << 128);
-            console.log("nftId before mint: ", nftId);
+            //console.log("nftId before mint: ", nftId);
             
             ITicketNFT(nftContract).mintFromMarketPlace(msg.sender, nftId);
             events[eventId].nextTicketToSell++;
-            console.log("nftId: ", nftId);
-            console.log("nextTicketToSell: ", events[eventId].nextTicketToSell);
-            console.log("eventId: ", eventId);
-            console.log("pricePerTicketERC20: ", events[eventId].pricePerTicketERC20);
-            console.log("user account ", msg.sender);
-            console.log("owner account: ", owner);
+            //console.log("nftId: ", nftId);
+            //console.log("nextTicketToSell: ", events[eventId].nextTicketToSell);
+            //console.log("eventId: ", eventId);
+            //console.log("pricePerTicketERC20: ", events[eventId].pricePerTicketERC20);
+            //console.log("user account ", msg.sender);
+            //console.log("owner account: ", owner);
         }
 
         IERC20 token = IERC20(ERC20Address);

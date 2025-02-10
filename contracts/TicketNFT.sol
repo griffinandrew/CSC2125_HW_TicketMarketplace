@@ -19,10 +19,10 @@ contract TicketNFT is ERC1155, ITicketNFT {
     }
 
     function mintFromMarketPlace(address to, uint256 nftId) external {
-        require(balanceOf(to, nftId) == 0, "NFT already exists");
+        //require(balanceOf(to, nftId) == 0, "NFT already exists");
         _mint(to, nftId, 1, "");
-        console.log("Minted ticket with nftId: ", nftId);
-        console.log("to: ", to);
+        //console.log("Minted ticket with nftId: ", nftId);
+        //console.log("to: ", to);
 
         uint256 balance = balanceOf(to, nftId);
         require(balance > 0, "Minting failed");
